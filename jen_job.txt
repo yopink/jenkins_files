@@ -1,1 +1,53 @@
-suppression fiche 1siren 80789633700019
+#!/usr/bin/groovy
+import groovy.transform.Field;
+
+def treeDeps = [
+	 'cv_a1' : [name : 'cv_a1' , type : 'pom',
+		deps : []
+		],
+	'cv_a2' : [name : 'cv_a2' , type : 'jar',
+		deps : [
+			"cv_a1" : [id : "nom000", type : "parent"]		
+			]
+		],	
+	'cv_a3' : [name : 'cv_a3' , type : 'jar',
+		deps : [
+			"cv_a1" : [id : "nom000", type : "parent"],
+			"cv_a2" : [id : "nom111", type : "exp", exp : "cv_a2_v"]
+			]
+		]
+	]
+ 
+ 
+node('master'){
+    
+   def rootDir = pwd()
+ def helper = load "/var/lib/jenkins/workspace/e2.groovy"
+   
+    stage('init'){
+         deleteDir()
+    }
+        
+  
+
+helper.coProjets()
+treeDeps.each{ k, v ->
+
+
+  stage("${k}"){
+	println "projet - v---> ${v}" 
+	 helper.processDeps(k, v.deps)
+  }
+  
+      
+  }
+  
+    
+  /*
+  input 'Push?'
+  stage 'Push' 
+  sh "git push ${pom.artifactId}-${version}"
+  */
+  
+  
+ }
